@@ -48,6 +48,9 @@ namespace FleetMap
 
             map.Loaded += OnMapLoaded;
             map.Unloaded += OnMapUnloaded;
+
+            //添加Listener
+            map.MarkerClickListener += ShowMarkerInfo;
         }
 
         private void OnMapUnloaded(object sender, RoutedEventArgs e)
@@ -149,8 +152,7 @@ namespace FleetMap
             //    IconUri = new Uri("Images/baidu.png", UriKind.Relative)
             //});
 
-            //添加Listener
-            map.MarkerClickListener += ShowMarkerInfo;
+            
         }
 
         /// <summary>
@@ -162,6 +164,10 @@ namespace FleetMap
         {
             //TODO
             Debug.WriteLine("TODO Show Marker Info");
+            //显示弹出信息
+            MarkerInfo info = new MarkerInfo();
+            sender.ShowInfoWindow(info, new Point(0, 0));
+            //TODO 取消弹窗参考DEMO
         }
     }
 }
