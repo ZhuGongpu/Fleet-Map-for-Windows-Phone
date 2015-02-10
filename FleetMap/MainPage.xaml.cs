@@ -156,18 +156,23 @@ namespace FleetMap
         }
 
         /// <summary>
-        ///     显示弹出信息
+        ///     显示/隐藏弹出信息
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
         private void ShowMarkerInfo(AMapMarker sender, AMapEventArgs args)
         {
-            //TODO
-            Debug.WriteLine("TODO Show Marker Info");
-            //显示弹出信息
-            MarkerInfo info = new MarkerInfo();
-            sender.ShowInfoWindow(info, new Point(0, 0));
-            //TODO 取消弹窗参考DEMO
+            if (sender.IsInfoWindowShown())
+            {
+                //隐藏弹出信息
+                sender.HideInfoWindow();
+            }
+            else
+            {
+                //显示弹出信息
+                MarkerInfo info = new MarkerInfo();
+                sender.ShowInfoWindow(info, new Point(0, 0));
+            }
         }
     }
 }
