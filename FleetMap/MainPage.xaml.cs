@@ -139,23 +139,6 @@ namespace FleetMap
         }
 
         /// <summary>
-        ///     向地图中添加marker
-        /// </summary>
-        private void AddMarker()
-        {
-            //TODO 
-            //map.AddMarker(new AMapMarkerOptions()
-            //{
-            //    Position = map.Center,
-            //    Title = "Title",
-            //    Snippet = "Snippet",
-            //    IconUri = new Uri("Images/baidu.png", UriKind.Relative)
-            //});
-
-            
-        }
-
-        /// <summary>
         ///     显示/隐藏弹出信息
         /// </summary>
         /// <param name="sender"></param>
