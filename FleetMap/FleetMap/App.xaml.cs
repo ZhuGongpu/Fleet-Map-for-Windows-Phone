@@ -4,8 +4,6 @@ using System.Resources;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
-using Com.AMap.Api.Maps;
-using Com.AMap.Api.Services;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using FleetMap.Resources;
@@ -25,9 +23,6 @@ namespace FleetMap
         /// </summary>
         public App()
         {
-            AMapConfig.Key = "429ae468820b883ef0791f019eac0b28";
-            AMapSearchConfig.Key = "429ae468820b883ef0791f019eac0b28";
-
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 
