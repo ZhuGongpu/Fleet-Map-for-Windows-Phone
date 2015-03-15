@@ -4,6 +4,7 @@ using System.Resources;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
+using AVOSCloud;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using FleetMap.Resources;
@@ -23,6 +24,9 @@ namespace FleetMap
         /// </summary>
         public App()
         {
+            //初始化AVOS
+            AVClient.Initialize("o3jajd0gl9ynlh9nl56pap164j1ujseyebj6ohzpgwgblo6i", "7w9wsfeftiym99o0utf80zncn4v7l06wk1jt2cg4dz3y5i5i");
+
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 

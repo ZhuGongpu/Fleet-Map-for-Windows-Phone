@@ -1,41 +1,214 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Device.Location;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+using Windows.Devices.Geolocation;
+using AVOSCloud;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using FleetMap.Resources;
+using Microsoft.Phone.Maps.Controls;
 
 namespace FleetMap
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        // Constructor
+        private Geolocator geolocator;
+
         public MainPage()
         {
             InitializeComponent();
 
-            // Sample code to localize the ApplicationBar
-            //BuildLocalizedApplicationBar();
+            InitMapView();
+            InitGeolocator();
         }
 
-        // Sample code for building a localized ApplicationBar
-        //private void BuildLocalizedApplicationBar()
-        //{
-        //    // Set the page's ApplicationBar to a new instance of ApplicationBar.
-        //    ApplicationBar = new ApplicationBar();
+        #region Map and Location
 
-        //    // Create a new button and set the text value to the localized string from AppResources.
-        //    ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.add.rest.png", UriKind.Relative));
-        //    appBarButton.Text = AppResources.AppBarButtonText;
-        //    ApplicationBar.Buttons.Add(appBarButton);
+        /// <summary>
+        ///     Init and Configure Geo Locator
+        /// </summary>
+        private void InitGeolocator()
+        {
+            if (geolocator == null) geolocator = new Geolocator();
+            geolocator.DesiredAccuracy = PositionAccuracy.High;
+            geolocator.MovementThreshold = 100; //the units are meters
+            geolocator.StatusChanged += GeolocatorOnStatusChanged;
+            geolocator.PositionChanged += GeolocatorOnPositionChanged;
+        }
 
-        //    // Create a new menu item with the localized string from AppResources.
-        //    ApplicationBarMenuItem appBarMenuItem = new ApplicationBarMenuItem(AppResources.AppBarMenuItemText);
-        //    ApplicationBar.MenuItems.Add(appBarMenuItem);
-        //}
+        private void InitMapView()
+        {
+            MapView.CartographicMode = MapCartographicMode.Road;
+            MapView.ZoomLevel = 16;
+
+            MapView.Pitch = 45; //倾斜角度
+
+            MapView.LandmarksEnabled = true;
+            MapView.PedestrianFeaturesEnabled = true;
+        }
+
+        /// <summary>
+        ///     Add a pushpin to the map
+        /// </summary>
+        private void AddMapOverlay(Geocoordinate geoCoordinate)
+        {
+            //TODO store the map layer
+
+            var pushpin = new Pushpin();
+
+            //creating a map overlayou and adding the pushpin to it
+            var mapOverlay = new MapOverlay();
+            mapOverlay.Content = pushpin;
+            mapOverlay.GeoCoordinate = new GeoCoordinate(geoCoordinate.Latitude, geoCoordinate.Longitude);
+            mapOverlay.PositionOrigin = new Point(0, 0.5);
+
+            //creating a map layer and adding the map overlayou to it
+            var mapLayer = new MapLayer();
+            mapLayer.Add(mapOverlay);
+            MapView.Layers.Add(mapLayer);
+        }
+
+        /// <summary>
+        ///     Change Map View Center
+        /// </summary>
+        /// <param name="geoposition"></param>
+        private void ChangeMapViewCenter(Geoposition geoposition)
+        {
+            MapView.Center = new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
+
+
+            AddMapOverlay(geoposition.Coordinate);
+        }
+
+        /// <summary>
+        ///     On Position Changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void GeolocatorOnPositionChanged(Geolocator sender, PositionChangedEventArgs args)
+        {
+            var geoposition = args.Position;
+            Debug.WriteLine("CurrentLocation:({0},{1})", geoposition.Coordinate.Latitude,
+                geoposition.Coordinate.Longitude);
+
+            Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(geoposition); });
+        }
+
+        /// <summary>
+        ///     On Status Changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void GeolocatorOnStatusChanged(Geolocator sender, StatusChangedEventArgs args)
+        {
+            var status = "";
+            switch (args.Status)
+            {
+                case PositionStatus.Disabled:
+                    status = "location is disabled in phone settings";
+                    break;
+                case PositionStatus.Initializing:
+                    status = "initializing";
+                    break;
+                case PositionStatus.NoData:
+                    status = "no data";
+                    break;
+                case PositionStatus.Ready:
+                    status = "ready";
+                    break;
+                case PositionStatus.NotAvailable:
+                    status = "not available";
+                    break;
+                case PositionStatus.NotInitialized:
+                    //the initial state of the geolocator, once the tracking operation is stopped by the user, the geolocator moves back to this state
+                    break;
+            }
+
+            Debug.WriteLine("Status:{0}" + status);
+        }
+
+        /// <summary>
+        ///     Get Current Location
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void GetCurrentLocation_OnClick(object sender, EventArgs e)
+        {
+            var geolocator = new Geolocator();
+
+            geolocator.DesiredAccuracy = PositionAccuracy.Default;
+            geolocator.DesiredAccuracyInMeters = 50;
+
+            try
+            {
+                Debug.WriteLine("locating...");
+                var geoposition = await geolocator.GetGeopositionAsync(
+                    TimeSpan.FromMinutes(5), //maximun age of cache
+                    TimeSpan.FromSeconds(60) //time out
+                    );
+
+                if (geoposition == null || geoposition.Coordinate == null) return;
+
+                var latitude = geoposition.Coordinate.Latitude;
+                var longitude = geoposition.Coordinate.Longitude;
+
+                Debug.WriteLine("CurrentLocation:({0},{1})", geoposition.Coordinate.Latitude,
+                    geoposition.Coordinate.Longitude);
+
+                Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(geoposition); });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("location is disabled in phone settings");
+            }
+        }
+
+        #endregion
+
+        #region LeanCloud
+
+        private async void SaveAVObject()
+        {
+            //create object
+            var football = new AVObject("Sport");
+            football["totalTime"] = 90;
+            football["name"] = "Football";
+            await football.SaveAsync();
+        }
+
+        private async void QueryAVObject()
+        {
+            //query
+            AVQuery<AVObject> query = new AVQuery<AVObject>("Sport");
+            //.whereNear;//不能写为query.WhereXXX，必须和上局相连
+            Debug.WriteLine("Start");
+            await query.FindAsync().ContinueWith((t) =>
+            {
+                var enumerator = t.Result.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    Debug.WriteLine(enumerator.Current.ObjectId + " " + enumerator.Current["totalTime"]);
+                }
+            });
+            Debug.WriteLine("End");
+        }
+
+
+        private async void GetNearByMarkers(double latitude, double longitude)
+        {
+            //query
+            AVQuery<AVObject> query = new AVQuery<AVObject>("Marker").WhereNear("location", new AVGeoPoint(latitude, longitude));
+            //.whereNear;//不能写为query.WhereXXX，必须和上句相连
+            Debug.WriteLine("Start Query");
+            await query.FindAsync().ContinueWith((t) =>
+            {
+                var enumerator = t.Result.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    Debug.WriteLine(enumerator.Current.ObjectId + " " + enumerator.Current["location"]);
+                }
+            });
+            Debug.WriteLine("End Query");
+        }
+        #endregion
     }
 }
