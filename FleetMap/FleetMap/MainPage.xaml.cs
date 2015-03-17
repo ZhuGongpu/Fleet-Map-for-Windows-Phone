@@ -41,39 +41,30 @@ namespace FleetMap
         /// <param name="markers">附近的marker</param>
         private void LoadMarkersToMap(List<Marker> markers)
         {
-            //RetrieveSurroungingMarkers(latitude, longitude, t =>
-            //{
-            //    var enumerator = t.Result.GetEnumerator();
-            //    while (enumerator.MoveNext())
-            //    {
-            //        AVGeoPoint geoPoint = (AVGeoPoint) enumerator.Current["location"];
-            //        Debug.WriteLine(enumerator.Current.ObjectId + " " + geoPoint);
-            //    }
-            //    //TODO load data into map
-
-            //});
+            foreach (var marker in markers)
+            {
+                AddPushpin(marker);
+            }
         }
 
-
         /// <summary>
-        ///     Add a pushpin to the map
+        /// 根据mark信息向地图中添加一个pushpin
         /// </summary>
-        private void AddMapOverlay(Geocoordinate geoCoordinate)
+        /// <param name="marker"></param>
+        private void AddPushpin(Marker marker)
         {
-            //TODO store the map layer
+            var pushpin = new Pushpin(marker);
 
-            //var pushpin = new Pushpin();
+            //creating a map overlay and adding the pushpin to it.
+            var mapOverlay = new MapOverlay();
+            mapOverlay.Content = pushpin;
+            mapOverlay.GeoCoordinate = new GeoCoordinate(marker.Location.Latitude, marker.Location.Longitude);
+            mapOverlay.PositionOrigin = new Point(0, 0.5);
 
-            ////creating a map overlayou and adding the pushpin to it
-            //var mapOverlay = new MapOverlay();
-            //mapOverlay.Content = pushpin;
-            //mapOverlay.GeoCoordinate = new GeoCoordinate(geoCoordinate.Latitude, geoCoordinate.Longitude);
-            //mapOverlay.PositionOrigin = new Point(0, 0.5);
-
-            ////creating a map layer and adding the map overlayou to it
-            //var mapLayer = new MapLayer();
-            //mapLayer.Add(mapOverlay);
-            //MapView.Layers.Add(mapLayer);
+            //creating a map layer and adding the map overlay to it.
+            var mapLayer = new MapLayer();
+            mapLayer.Add(mapOverlay);
+            MapView.Layers.Add(mapLayer);
         }
 
         #endregion
@@ -101,8 +92,8 @@ namespace FleetMap
         {
             MapView.Center = new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
 
-            //加载markers
-            AddMapOverlay(geoposition.Coordinate);
+            //TODO reload or refresh markers
+            
         }
 
         /// <summary>
