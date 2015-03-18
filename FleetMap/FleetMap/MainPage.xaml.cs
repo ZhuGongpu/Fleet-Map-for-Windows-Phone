@@ -101,12 +101,26 @@ namespace FleetMap
                     var markers = new List<Marker>();
                     foreach (var avObjetct in task.Result)
                     {
-                        var markerId = avObjetct.Get<String>(Marker.ParamObjectId);
-                        var content = avObjetct.Get<String>(Marker.ParamContent);
-                        var type = avObjetct.Get<String>(Marker.ParamType);
-                        var photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);
-                        var point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
+                        //Debug.WriteLine("Keys:");
+                        //foreach (var key in avObjetct.Keys)
+                        //{
+                        //    Debug.WriteLine(key);
+                        //}
+                        //Debug.WriteLine("---End Keys");
+                        var markerId = avObjetct.ObjectId;
+                        var content = "";
+                        var type = "";
+                        AVFile photo = null;
+                        AVGeoPoint point;
 
+                        if (avObjetct.ContainsKey(Marker.ParamContent))
+                            content = avObjetct.Get<String>(Marker.ParamContent);
+                        if (avObjetct.ContainsKey(Marker.ParamType))
+                            type = avObjetct.Get<String>(Marker.ParamType);
+                        if (avObjetct.ContainsKey(Marker.ParamPhoto))
+                            photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);
+                        //一定存在位置信息，因此不需要检查
+                        point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
                         markers.Add(new Marker(markerId, content, type, photo, point));
                     }
 

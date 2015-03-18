@@ -7,17 +7,17 @@ namespace FleetMap.Models
     /// </summary>
     public class Marker
     {
-        public static readonly string ParamObjectId = "objetId";
+        //public static readonly string ParamObjectId = "objectId";
         public static readonly string ParamPeopleList = "peoplelist";
-        public static readonly string ParamACL = "ACL";
+        //public static readonly string ParamACL = "ACL";
         public static readonly string ParamContent = "content";
-        public static readonly string ParamCommentList = "commnetlist";
+        public static readonly string ParamCommentList = "commentlist";
         public static readonly string ParamType = "type";
         public static readonly string ParamPhoto = "photo";
         public static readonly string ParamLocation = "location";
         public static readonly string ParamUser = "user";
-        public static readonly string ParamCreatedAt = "createdAt";
-        public static readonly string ParamUpdatedAt = "updatedAt";
+        //public static readonly string ParamCreatedAt = "createdAt";
+        //public static readonly string ParamUpdatedAt = "updatedAt";
 
         public Marker(string markerId, string content, string type, AVFile photo, AVGeoPoint location)
         {
