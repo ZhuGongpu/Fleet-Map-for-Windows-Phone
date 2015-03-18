@@ -4,6 +4,7 @@ using System.Device.Location;
 using System.Diagnostics;
 using System.Windows;
 using Windows.Devices.Geolocation;
+using AVOSCloud;
 using FleetMap.Models;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Maps.Controls;
@@ -48,7 +49,7 @@ namespace FleetMap
         }
 
         /// <summary>
-        /// 根据mark信息向地图中添加一个pushpin
+        ///     根据mark信息向地图中添加一个pushpin
         /// </summary>
         /// <param name="marker"></param>
         private void AddPushpin(Marker marker)
@@ -92,8 +93,25 @@ namespace FleetMap
         {
             MapView.Center = new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
 
-            //TODO reload or refresh markers
-            
+            //load nearby markers
+            LeanCloudHelper.RetrieveSurroungingMarkers(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude,
+                task =>
+                {
+                    //load markers to map
+                    var markers = new List<Marker>();
+                    foreach (var avObjetct in task.Result)
+                    {
+                        var markerId = avObjetct.Get<String>(Marker.ParamObjectId);
+                        var content = avObjetct.Get<String>(Marker.ParamContent);
+                        var type = avObjetct.Get<String>(Marker.ParamType);
+                        var photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);
+                        var point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
+
+                        markers.Add(new Marker(markerId, content, type, photo, point));
+                    }
+
+                    Dispatcher.BeginInvoke(() => { LoadMarkersToMap(markers); });
+                });
         }
 
         /// <summary>
