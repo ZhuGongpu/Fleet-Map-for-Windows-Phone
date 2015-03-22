@@ -38,7 +38,7 @@ namespace FleetMap
             //当定位未完成时，不能跳转
             if (_currentGeoposition == null)
             {
-                MessageBox.Show("请稍后，正在定位...");
+                MessageBox.Show("请稍候，正在定位...");
                 return;
             }
 
