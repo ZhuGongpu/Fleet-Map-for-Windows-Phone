@@ -7,6 +7,9 @@ namespace FleetMap
 {
     public partial class NewMarkerPage : PhoneApplicationPage
     {
+        public const string ParamLatitude = "latitude";
+        public const string ParamLongitude = "longitude";
+
         public NewMarkerPage()
         {
             InitializeComponent();
@@ -22,6 +25,8 @@ namespace FleetMap
                 Debug.WriteLine("{0} : {1}", entry.Key, entry.Value);
             }
             Debug.WriteLine("OnNavigateTo End");
+
+            //TODO 解析当前坐标
         }
 
         private void PostMarker_OnClick(object sender, EventArgs e)

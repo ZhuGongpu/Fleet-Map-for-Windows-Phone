@@ -13,7 +13,12 @@ namespace FleetMap
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        private Geolocator geolocator;
+        /// <summary>
+        ///     当前位置
+        /// </summary>
+        private Geoposition _currentGeoposition;
+
+        private Geolocator _geolocator;
 
         public MainPage()
         {
@@ -21,6 +26,30 @@ namespace FleetMap
 
             InitMapView();
             InitGeolocator();
+        }
+
+        /// <summary>
+        /// 跳转到新建marker页面
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewMarker_OnClick(object sender, EventArgs e)
+        {
+            //当定位未完成时，不能跳转
+            if (_currentGeoposition == null)
+            {
+                MessageBox.Show("请稍后，正在定位...");
+                return;
+            }
+
+
+            // 传入当前坐标
+            NavigationService.Navigate(
+                new Uri(
+                    "/NewMarkerPage.xaml?" + NewMarkerPage.ParamLatitude + "=" + _currentGeoposition.Coordinate.Latitude +
+                    "&" +
+                    NewMarkerPage.ParamLongitude + "=" + _currentGeoposition.Coordinate.Longitude
+                    , UriKind.Relative));
         }
 
         #region Map
@@ -77,11 +106,11 @@ namespace FleetMap
         /// </summary>
         private void InitGeolocator()
         {
-            if (geolocator == null) geolocator = new Geolocator();
-            geolocator.DesiredAccuracy = PositionAccuracy.High;
-            geolocator.MovementThreshold = 100; //the units are meters
-            geolocator.StatusChanged += GeolocatorOnStatusChanged;
-            geolocator.PositionChanged += GeolocatorOnPositionChanged;
+            if (_geolocator == null) _geolocator = new Geolocator();
+            _geolocator.DesiredAccuracy = PositionAccuracy.High;
+            _geolocator.MovementThreshold = 100; //the units are meters
+            _geolocator.StatusChanged += GeolocatorOnStatusChanged;
+            _geolocator.PositionChanged += GeolocatorOnPositionChanged;
         }
 
 
@@ -91,6 +120,8 @@ namespace FleetMap
         /// <param name="geoposition"></param>
         private void ChangeMapViewCenter(Geoposition geoposition)
         {
+            _currentGeoposition = geoposition;
+
             MapView.Center = new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
 
             //load nearby markers
@@ -150,6 +181,7 @@ namespace FleetMap
         private void GeolocatorOnStatusChanged(Geolocator sender, StatusChangedEventArgs args)
         {
             var status = "";
+
             switch (args.Status)
             {
                 case PositionStatus.Disabled:
@@ -182,16 +214,16 @@ namespace FleetMap
         /// <param name="e"></param>
         private async void GetCurrentLocation_OnClick(object sender, EventArgs e)
         {
-            if (geolocator == null)
-                geolocator = new Geolocator();
+            if (_geolocator == null)
+                _geolocator = new Geolocator();
 
-            geolocator.DesiredAccuracy = PositionAccuracy.Default;
-            geolocator.DesiredAccuracyInMeters = 50;
+            _geolocator.DesiredAccuracy = PositionAccuracy.Default;
+            _geolocator.DesiredAccuracyInMeters = 50;
 
             try
             {
                 Debug.WriteLine("locating...");
-                var geoposition = await geolocator.GetGeopositionAsync(
+                var geoposition = await _geolocator.GetGeopositionAsync(
                     TimeSpan.FromMinutes(5), //maximun age of cache
                     TimeSpan.FromSeconds(60) //time out
                     );
@@ -212,12 +244,5 @@ namespace FleetMap
         }
 
         #endregion
-
-        private void NewMarker_OnClick(object sender, EventArgs e)
-        {
-            Debug.WriteLine("Navigate to NewMarkerPage");
-            //TODO 传入当前坐标
-            NavigationService.Navigate(new Uri("/NewMarkerPage.xaml?id=1", UriKind.Relative));
-        }
     }
 }

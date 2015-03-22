@@ -17,9 +17,10 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar>
 
-            <shell:ApplicationBarIconButton x:Name="GetCurrentLocation" IconUri="Assets/Navigation.png" IsEnabled="True"
+            <shell:ApplicationBarIconButton x:Name="GetCurrentLocation" IconUri="Assets/Navigation.png"
+                                            IsEnabled="True"
                                             Text="当前位置" Click="GetCurrentLocation_OnClick" />
-            <shell:ApplicationBarIconButton x:Name="NewMarker" IconUri="Assets/Plus.png" IsEnabled="True"
+            <shell:ApplicationBarIconButton x:Name="NewMarker" IconUri="Assets/Plus.png"
                                             Text="发布" Click="NewMarker_OnClick" />
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
