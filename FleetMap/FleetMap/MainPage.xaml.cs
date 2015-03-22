@@ -212,5 +212,12 @@ namespace FleetMap
         }
 
         #endregion
+
+        private void NewMarker_OnClick(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Navigate to NewMarkerPage");
+            //TODO 传入当前坐标
+            NavigationService.Navigate(new Uri("/NewMarkerPage.xaml?id=1", UriKind.Relative));
+        }
     }
 }
