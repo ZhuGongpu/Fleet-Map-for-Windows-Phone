@@ -12,6 +12,7 @@ namespace FleetMap
     {
         public const string ParamLatitude = "latitude";
         public const string ParamLongitude = "longitude";
+        private double latitude, longitude;
 
         public NewMarkerPage()
         {
@@ -29,14 +30,18 @@ namespace FleetMap
             }
             Debug.WriteLine("OnNavigateTo End");
 
-            //TODO 解析当前坐标
+            // 解析当前坐标
+
+            latitude = double.Parse(NavigationContext.QueryString[ParamLatitude]);
+            longitude = double.Parse(NavigationContext.QueryString[ParamLongitude]);
         }
 
         private void PostMarker_OnClick(object sender, EventArgs e)
         {
-            //TODO Post
+            //Post marker
             if (!string.IsNullOrEmpty(TextBox.Text))
             {
+                //TODO Post
             }
 
             //返回MainPage
@@ -44,18 +49,18 @@ namespace FleetMap
         }
 
         /// <summary>
-        /// 选择照片
+        ///     选择照片
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void PickImage_OnClick(object sender, RoutedEventArgs e)
         {
-            PhotoChooserTask photoChooserTask = new PhotoChooserTask();
+            var photoChooserTask = new PhotoChooserTask();
             photoChooserTask.Completed += photoChooserTask_Completed;
             photoChooserTask.Show();
         }
 
-        void photoChooserTask_Completed(object sender, PhotoResult e)
+        private void photoChooserTask_Completed(object sender, PhotoResult e)
         {
             if (e.TaskResult == TaskResult.OK)
             {
