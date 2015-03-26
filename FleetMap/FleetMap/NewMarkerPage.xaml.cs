@@ -43,27 +43,38 @@ namespace FleetMap
         private async void PostMarker_OnClick(object sender, EventArgs e)
         {
             //Post marker
-            if (!string.IsNullOrEmpty(TextBox.Text))
+            Debug.WriteLine("POST Marker");
+
+            var text = TextBox.Text;
+            var avObject = new AVObject("Marker");
+            if (chosenPhoto != null && chosenPhotoName != null)
             {
-                //TODO Post
+                //先上传文件
+                Debug.WriteLine("uploading file...");
+                var avFile = new AVFile(chosenPhotoName, chosenPhoto);
+                await avFile.SaveAsync();
+                Debug.WriteLine("save file done");
 
-                Debug.WriteLine("POST Marker");
-
-                var text = TextBox.Text;
-                var avObject = new AVObject("Marker");
-                if (chosenPhoto != null && chosenPhotoName != null)
-                    avObject["photo"] = new AVFile(chosenPhotoName, chosenPhoto);
-                avObject["content"] = text;
-                avObject["type"] = "localTucao";
-
-                Debug.WriteLine("saving...");
-                await avObject.SaveAsync().ContinueWith(t =>                
-                {
-                    Debug.WriteLine("save done : " + t.IsFaulted);
-                    //返回MainPage
-                    Dispatcher.BeginInvoke(() => { NavigationService.Navigate(new Uri("/MainPage.xaml", UriKind.Relative)); });
-                });
+                //关联刚才上传的文件
+                var fileId = avFile.ObjectId;
+                var query = new AVQuery<AVObject>("_File");
+                var first = await query.WhereEqualTo("objectId", fileId).FirstAsync();
+                avObject["photo"] = first;
             }
+
+            if (!string.IsNullOrEmpty(TextBox.Text))
+                avObject["content"] = text;
+
+            avObject["type"] = "localTucao";
+
+            Debug.WriteLine("saving...");
+            await avObject.SaveAsync().ContinueWith(t =>
+            {
+                Debug.WriteLine("save done with error: " + t.IsFaulted);
+                //返回MainPage
+                Dispatcher.BeginInvoke(
+                    () => { NavigationService.Navigate(new Uri("/MainPage.xaml", UriKind.Relative)); });
+            });
         }
 
         /// <summary>
