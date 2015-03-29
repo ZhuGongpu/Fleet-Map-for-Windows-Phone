@@ -83,8 +83,8 @@ namespace FleetMap
             foreach (var marker in markers)
             {
                 //  TODO demo only
-                var latitudeOffset = 0.0001*new Random().Next(10);
-                var longitudeOffset = 0.0001*new Random().Next(10);
+                var latitudeOffset = 0.0001*new Random().Next(20);
+                var longitudeOffset = 0.0001*new Random().Next(30);
 
                 if (new Random().Next()%3 == 0)
                     latitudeOffset = -latitudeOffset;
@@ -96,7 +96,7 @@ namespace FleetMap
 
                 var dummyPoint = new AVGeoPoint(latitude, longitude);
 
-                var dummpyMarker = new Marker(marker.MarkerId, marker.Content, marker.Type, marker.Photo, dummyPoint);
+                var dummpyMarker = new Marker(marker.MarkerId, GenString(), marker.Type, marker.Photo, dummyPoint);
 
                 //if (new Random().Next()%2 == 0)
                 //    AddPushpin(marker);
@@ -191,7 +191,7 @@ namespace FleetMap
         /// <param name="coordinate"></param>
         private void ChangeMapViewCenter(GeoCoordinate coordinate)
         {
-            breakingNewsLayer.Clear();//清除所有数据
+            breakingNewsLayer.Clear(); //清除所有数据
 
             MapView.Center = new GeoCoordinate(coordinate.Latitude, coordinate.Longitude);
             const int limit = 8; //AVOS请求数据时，一次加载的数量
@@ -325,6 +325,44 @@ namespace FleetMap
             }
         }
 
+        #endregion
+
+        #region Utils
+        /// <summary>
+        /// 随机生成marker内容
+        /// </summary>
+        /// <returns></returns>
+        public static string GenString()
+        {
+            Random random = new Random();
+
+            switch (random.Next(10))
+            {
+                case 0:
+                    return "我要睡觉!!!";
+                case 1:
+                    return "我也要睡觉!";
+                case 2:
+                    return "睡睡睡";
+                case 3:
+                    return "约不约???";
+                case 4:
+                    return "约么";
+                case 5:
+                    return "约！";
+                case 6:
+                    return "么么哒";
+                case 7:
+                    return "FleetMap";
+                case 8:
+                    return "我电话是13581932165，快来约我";
+                case 9:
+                    return "我要请吃饭";
+                default:
+                    return "hi";
+
+            }
+        }
         #endregion
     }
 }
