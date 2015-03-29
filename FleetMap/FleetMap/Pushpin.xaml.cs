@@ -1,21 +1,28 @@
-﻿using System.Windows.Controls;
-using AVOSCloud;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using FleetMap.Models;
 
 namespace FleetMap
 {
     public partial class Pushpin : UserControl
     {
-        private Marker _marker = null;
+        private Marker _marker;
 
         public Pushpin(Marker marker)
         {
-            this._marker = marker;
+            _marker = marker;
 
             InitializeComponent();
 
             //TODO 获取marker相关信息
-            Content.Text = marker.Content;
+            MarkerText.Text = marker.Content;
+            //if (marker.Photo != null && marker.Photo.Url != null)
+            //    MarkerImage.Source = new BitmapImage(marker.Photo.Url);
+            //else
+            //{
+            //    MarkerImage.Visibility = Visibility.Collapsed; //隐藏image
+            //}
         }
     }
 }

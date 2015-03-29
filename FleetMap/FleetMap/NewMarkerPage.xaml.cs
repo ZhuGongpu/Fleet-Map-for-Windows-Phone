@@ -67,6 +67,8 @@ namespace FleetMap
 
             avObject["type"] = "localTucao";
 
+            avObject["location"] = new AVGeoPoint(latitude, longitude);
+
             Debug.WriteLine("saving...");
             await avObject.SaveAsync().ContinueWith(t =>
             {

@@ -29,7 +29,7 @@ namespace FleetMap
         }
 
         /// <summary>
-        /// 跳转到新建marker页面
+        ///     跳转到新建marker页面
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -142,16 +142,16 @@ namespace FleetMap
                         var content = "";
                         var type = "";
                         AVFile photo = null;
-                        AVGeoPoint point;
+                        AVGeoPoint point = new AVGeoPoint(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
 
                         if (avObjetct.ContainsKey(Marker.ParamContent))
                             content = avObjetct.Get<String>(Marker.ParamContent);
                         if (avObjetct.ContainsKey(Marker.ParamType))
                             type = avObjetct.Get<String>(Marker.ParamType);
                         if (avObjetct.ContainsKey(Marker.ParamPhoto))
-                            photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);
-                        //一定存在位置信息，因此不需要检查
-                        point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
+                            photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);                        
+                        if (avObjetct.ContainsKey(Marker.ParamLocation))
+                            point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
                         markers.Add(new Marker(markerId, content, type, photo, point));
                     }
 
