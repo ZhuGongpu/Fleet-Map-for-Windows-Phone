@@ -62,11 +62,13 @@ namespace FleetMap
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
         /// <param name="continuationAction"></param>
-        public static async void RetrieveSurroungingMarkers(double latitude, double longitude,
-            Action<Task<IEnumerable<AVObject>>> continuationAction)
+        /// <param name="skip"></param>
+        /// /// <param name="limit"></param>
+        public static async void RetrieveSurroungingMarkers(double latitude, double longitude, int skip, int limit,
+            Action<Task<IEnumerable<AVObject>>> continuationAction )
         {
             //query
-            var query = new AVQuery<AVObject>("Marker").WhereNear("location", new AVGeoPoint(latitude, longitude));
+            var query = new AVQuery<AVObject>("Marker").WhereNear("location", new AVGeoPoint(latitude, longitude)).Skip(skip).Limit(limit);
 
             Debug.WriteLine("Start Query");
 

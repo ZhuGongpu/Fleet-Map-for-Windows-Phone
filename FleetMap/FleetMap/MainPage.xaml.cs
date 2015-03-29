@@ -82,9 +82,9 @@ namespace FleetMap
         {
             foreach (var marker in markers)
             {
-                if (new Random().Next()%2 == 0)
-                    AddPushpin(marker);
-                else
+                //if (new Random().Next()%2 == 0)
+                //    AddPushpin(marker);
+                //else
                     AddPushpin_AutoDispear(marker);
             }
         }
@@ -115,7 +115,7 @@ namespace FleetMap
                 {
                     Thread.Sleep(stride);
                     var i1 = i;
-                    Dispatcher.BeginInvoke(() => { pushpin.Opacity = 1 - (double)i1 / lifeTime; });
+                    Dispatcher.BeginInvoke(() => { pushpin.Opacity = 1 - (double) i1/lifeTime; });
                 }
             }).Start();
         }
@@ -156,19 +156,34 @@ namespace FleetMap
             _geolocator.PositionChanged += GeolocatorOnPositionChanged;
         }
 
-
         /// <summary>
-        ///     Change Map View Center
+        ///     加载marker时需要跳过的数量
         /// </summary>
-        /// <param name="geoposition"></param>
+        private int skip = 0;
+
+
         private void ChangeMapViewCenter(Geoposition geoposition)
         {
             _currentGeoposition = geoposition;
 
-            MapView.Center = new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
+            ChangeMapViewCenter(new GeoCoordinate(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude));
+        }
+
+        /// <summary>
+        ///     Change Map View Center
+        /// </summary>
+        /// <param name="coordinate"></param>
+        private void ChangeMapViewCenter(GeoCoordinate coordinate)
+        {
+            
+
+            MapView.Center = new GeoCoordinate(coordinate.Latitude, coordinate.Longitude);
+            const int limit = 8;//AVOS请求数据时，一次加载的数量
+            skip += limit;
 
             //load nearby markers
-            LeanCloudHelper.RetrieveSurroungingMarkers(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude,
+            LeanCloudHelper.RetrieveSurroungingMarkers(coordinate.Latitude, coordinate.Longitude,
+                skip, limit,
                 task =>
                 {
                     //load markers to map
@@ -185,7 +200,7 @@ namespace FleetMap
                         var content = "";
                         var type = "";
                         AVFile photo = null;
-                        var point = new AVGeoPoint(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
+                        var point = new AVGeoPoint(coordinate.Latitude, coordinate.Longitude);
 
                         if (avObjetct.ContainsKey(Marker.ParamContent))
                             content = avObjetct.Get<String>(Marker.ParamContent);
@@ -200,6 +215,15 @@ namespace FleetMap
 
                     Dispatcher.BeginInvoke(() => { LoadMarkersToMap(markers); });
                 });
+
+            //递归调用
+            new Task(() =>
+            {
+                Thread.Sleep(2010);
+                //刷新UI
+                Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(MapView.Center); });
+                
+            }).Start();
         }
 
         /// <summary>
