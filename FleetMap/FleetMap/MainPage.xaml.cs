@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Device.Location;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Windows.Devices.Geolocation;
 using AVOSCloud;
@@ -13,6 +15,11 @@ namespace FleetMap
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        /// <summary>
+        ///     layer中的marker会自动消失
+        /// </summary>
+        private readonly MapLayer breakingNewsLayer = new MapLayer();
+
         /// <summary>
         ///     当前位置
         /// </summary>
@@ -63,6 +70,8 @@ namespace FleetMap
 
             MapView.LandmarksEnabled = true;
             MapView.PedestrianFeaturesEnabled = true;
+
+            MapView.Layers.Add(breakingNewsLayer); //layer中的消息会自动消失
         }
 
         /// <summary>
@@ -73,8 +82,42 @@ namespace FleetMap
         {
             foreach (var marker in markers)
             {
-                AddPushpin(marker);
+                if (new Random().Next()%2 == 0)
+                    AddPushpin(marker);
+                else
+                    AddPushpin_AutoDispear(marker);
             }
+        }
+
+        /// <summary>
+        ///     根据mark信息向地图中添加一个pushpin，会自动消失
+        /// </summary>
+        /// <param name="marker"></param>
+        private void AddPushpin_AutoDispear(Marker marker)
+        {
+            var pushpin = new Pushpin(marker);
+
+            //creating a map overlay and adding the pushpin to it.
+            var mapOverlay = new MapOverlay();
+            mapOverlay.Content = pushpin;
+            mapOverlay.GeoCoordinate = new GeoCoordinate(marker.Location.Latitude, marker.Location.Longitude);
+            mapOverlay.PositionOrigin = new Point(0, 0.5);
+
+            breakingNewsLayer.Add(mapOverlay);
+
+
+            new Task(() =>
+            {
+                var stride = 10;
+                var lifeTime = 1000;
+
+                for (var i = 0; i < lifeTime; i += stride)
+                {
+                    Thread.Sleep(stride);
+                    var i1 = i;
+                    Dispatcher.BeginInvoke(() => { pushpin.Opacity = 1 - (double)i1 / lifeTime; });
+                }
+            }).Start();
         }
 
         /// <summary>
@@ -142,14 +185,14 @@ namespace FleetMap
                         var content = "";
                         var type = "";
                         AVFile photo = null;
-                        AVGeoPoint point = new AVGeoPoint(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
+                        var point = new AVGeoPoint(geoposition.Coordinate.Latitude, geoposition.Coordinate.Longitude);
 
                         if (avObjetct.ContainsKey(Marker.ParamContent))
                             content = avObjetct.Get<String>(Marker.ParamContent);
                         if (avObjetct.ContainsKey(Marker.ParamType))
                             type = avObjetct.Get<String>(Marker.ParamType);
                         if (avObjetct.ContainsKey(Marker.ParamPhoto))
-                            photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);                        
+                            photo = avObjetct.Get<AVFile>(Marker.ParamPhoto);
                         if (avObjetct.ContainsKey(Marker.ParamLocation))
                             point = avObjetct.Get<AVGeoPoint>(Marker.ParamLocation);
                         markers.Add(new Marker(markerId, content, type, photo, point));
