@@ -82,10 +82,26 @@ namespace FleetMap
         {
             foreach (var marker in markers)
             {
+                //  TODO demo only
+                var latitudeOffset = 0.0001*new Random().Next(10);
+                var longitudeOffset = 0.0001*new Random().Next(10);
+
+                if (new Random().Next()%3 == 0)
+                    latitudeOffset = -latitudeOffset;
+                if (new Random().Next()%3 == 0)
+                    longitudeOffset = -longitudeOffset;
+
+                var latitude = MapView.Center.Latitude + latitudeOffset;
+                var longitude = MapView.Center.Longitude + longitudeOffset;
+
+                var dummyPoint = new AVGeoPoint(latitude, longitude);
+
+                var dummpyMarker = new Marker(marker.MarkerId, marker.Content, marker.Type, marker.Photo, dummyPoint);
+
                 //if (new Random().Next()%2 == 0)
                 //    AddPushpin(marker);
                 //else
-                    AddPushpin_AutoDispear(marker);
+                AddPushpin_AutoDispear(dummpyMarker);
             }
         }
 
@@ -159,7 +175,7 @@ namespace FleetMap
         /// <summary>
         ///     加载marker时需要跳过的数量
         /// </summary>
-        private int skip = 0;
+        private int skip;
 
 
         private void ChangeMapViewCenter(Geoposition geoposition)
@@ -175,10 +191,10 @@ namespace FleetMap
         /// <param name="coordinate"></param>
         private void ChangeMapViewCenter(GeoCoordinate coordinate)
         {
-            
+            breakingNewsLayer.Clear();//清除所有数据
 
             MapView.Center = new GeoCoordinate(coordinate.Latitude, coordinate.Longitude);
-            const int limit = 8;//AVOS请求数据时，一次加载的数量
+            const int limit = 8; //AVOS请求数据时，一次加载的数量
             skip += limit;
 
             //load nearby markers
@@ -222,7 +238,6 @@ namespace FleetMap
                 Thread.Sleep(2010);
                 //刷新UI
                 Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(MapView.Center); });
-                
             }).Start();
         }
 
