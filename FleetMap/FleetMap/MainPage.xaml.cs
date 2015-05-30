@@ -80,15 +80,17 @@ namespace FleetMap
         /// <param name="markers">附近的marker</param>
         private void LoadMarkersToMap(List<Marker> markers)
         {
-            foreach (var marker in markers)
+            MapView.Layers.Clear();
+            //foreach (var marker in markers)
+            for(int i = 0; i < 5; i++)
             {
                 //  TODO demo only
-                var latitudeOffset = 0.0001*new Random().Next(20);
+                var latitudeOffset = 0.0001*new Random().Next(20) * i;
                 var longitudeOffset = 0.0001*new Random().Next(30);
 
-                if (new Random().Next()%3 == 0)
+                if (new Random().Next()%5 == 0)
                     latitudeOffset = -latitudeOffset;
-                if (new Random().Next()%3 == 0)
+                if (new Random().Next()%5 == 0)
                     longitudeOffset = -longitudeOffset;
 
                 var latitude = MapView.Center.Latitude + latitudeOffset;
@@ -96,12 +98,14 @@ namespace FleetMap
 
                 var dummyPoint = new AVGeoPoint(latitude, longitude);
 
-                var dummpyMarker = new Marker(marker.MarkerId, GenString(), marker.Type, marker.Photo, dummyPoint);
+                var dummpyMarker = new Marker("", GenString(i), "", null, dummyPoint);
+                    //new Marker(marker.MarkerId, GenString(), marker.Type, marker.Photo, dummyPoint);
 
                 //if (new Random().Next()%2 == 0)
                 //    AddPushpin(marker);
                 //else
-                AddPushpin_AutoDispear(dummpyMarker);
+                AddPushpin(dummpyMarker);
+                //AddPushpin_AutoDispear(dummpyMarker);
             }
         }
 
@@ -233,12 +237,12 @@ namespace FleetMap
                 });
 
             //递归调用
-            new Task(() =>
-            {
-                Thread.Sleep(2010);
-                //刷新UI
-                Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(MapView.Center); });
-            }).Start();
+            //new Task(() =>
+            //{
+            //    Thread.Sleep(2010);
+            //    //刷新UI
+            //    Dispatcher.BeginInvoke(() => { ChangeMapViewCenter(MapView.Center); });
+            //}).Start();
         }
 
         /// <summary>
@@ -336,31 +340,50 @@ namespace FleetMap
         {
             Random random = new Random();
 
-            switch (random.Next(10))
-            {
-                case 0:
-                    return "我要睡觉!!!";
-                case 1:
-                    return "我也要睡觉!";
-                case 2:
-                    return "睡睡睡";
-                case 3:
-                    return "约不约???";
-                case 4:
-                    return "约么";
-                case 5:
-                    return "约！";
-                case 6:
-                    return "么么哒";
-                case 7:
-                    return "FleetMap";
-                case 8:
-                    return "我电话是13581932165，快来约我";
-                case 9:
-                    return "我要请吃饭";
-                default:
-                    return "hi";
+            return GenString(random.Next(5));
+        }
 
+        public static string GenString(int i)
+        {
+            switch (i)
+            {
+                //case 0:
+                //    return "我要睡觉!!!";
+                //case 1:
+                //    return "我也要睡觉!";
+                //case 2:
+                //    return "睡睡睡";
+                //case 3:
+                //    return "约不约???";
+                //case 4:
+                //    return "约么";
+                //case 5:
+                //    return "约！";
+                //case 6:
+                //    return "么么哒";
+                //case 7:
+                //    return "FleetMap";
+                //case 8:
+                //    return "我电话是13581932165，快来约我";
+                //case 9:
+                //    return "我要请吃饭";
+                //default:
+                //    return "hi";
+
+                case 0:
+                    return "周日篮球场约起~";
+                case 1:
+                    return "免费给妹子修电脑啦";
+                case 2:
+                    return "高兴火锅请吃饭，有木有妹子一起~~~";
+                case 3:
+                    return "明天社团招新，绿园南门快来捧场啊";
+                case 4:
+                    return "有木有人一起打羽毛球呢";
+                case 5:
+                    return "《速度与激情7》求陪同";
+                default:
+                    return "约约约！！！";
             }
         }
         #endregion
